@@ -20,7 +20,7 @@ public class AuthenticationService {
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
     public AuthenticationResponse register(RegisterRequest request) {
-        System.out.println("request "+request);
+        //System.err.println("request "+request);
         var userbm = Userbm.builder()
                 .firstName(request.getFirstName())
                 .lastName(request.getLastName())
@@ -36,9 +36,8 @@ public class AuthenticationService {
     }
 
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
-        System.err.println("Dans authenticate email = "+request.getEmail()+ " password ="+request.getPassword());
-        String at = authenticationManager.toString();
-        System.err.println("authenticationManager "+authenticationManager);
+        //System.err.println("Lancement de la fonction authenticate du service AuthenticationService ");
+        //System.err.println("Et dans authenticate on a  email = "+request.getEmail()+ " et password ="+request.getPassword());
         try {
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
@@ -50,13 +49,13 @@ public class AuthenticationService {
         catch (Exception e){
             e.printStackTrace();
         }
-        System.err.println("Dans authenticate mais pendant la generation de la reponse");
+        //System.err.println("Apres l'authentification grace a l'authenticationManager  ");
         Optional<Userbm> optionalUserbm = repository.findByEmail(request.getEmail());
         if(optionalUserbm.isEmpty()){
             throw new UsernameNotFoundException("userEmail or Password incorrect");
         }
         var jwtToken = jwtService.generateToken(optionalUserbm.get());
-        System.out.println("le jwt generate lors de l'authenticate "+jwtToken);
+        //System.err.println("le jwt genere apres l'authentication"+jwtToken);
         return AuthenticationResponse.builder()
                 .token(jwtToken)
                 .build();

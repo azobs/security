@@ -21,26 +21,30 @@ public class ApplicationConfig {
 
     @Bean
     public UserDetailsService userDetailsService(){
+        //System.err.println("construction du bean UserDetailsService charge de faire le recherche du user en BD");
         return username -> userbmRepository.findByEmail(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found in the DB"));
     }
 
     @Bean
     public AuthenticationProvider authenticationProvider(){
+        //System.err.println("construction du authentication provider");
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
         authProvider.setUserDetailsService(userDetailsService());
         authProvider.setPasswordEncoder(passwordEncoder());
+        //System.err.println("Affectation du Bean userDetailsService et du bean passwordEncoder au AuthenticationProvider");
         return authProvider;
     }
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+        //System.err.println("construction du authentication manager");
         return config.getAuthenticationManager();
     }
 
     @Bean
     public PasswordEncoder passwordEncoder(){
-        BCryptPasswordEncoder bc = new BCryptPasswordEncoder();
+        //System.err.println("construction du passwordEncoder");
         return new BCryptPasswordEncoder();
     }
 }

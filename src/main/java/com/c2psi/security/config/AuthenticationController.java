@@ -23,6 +23,7 @@ public class AuthenticationController {
     public ResponseEntity<AuthenticationResponse> authenticate(
             @RequestBody AuthenticationRequest request
     ){
+        //System.err.println("Lancement de la methode authenticate du controller AuthenticationController");
         return ResponseEntity.ok(service.authenticate(request));
     }
 }

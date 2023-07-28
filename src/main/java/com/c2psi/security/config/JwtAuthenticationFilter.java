@@ -28,43 +28,49 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     @NonNull HttpServletResponse response,
                                     @NonNull FilterChain filterChain)
             throws ServletException, IOException {
+        //System.err.println("Lancement du filtre JwtAuthenticationFilter avec sa methode doFilterInternal");
         final String authHeader = request.getHeader("Authorization");
         String jwt = null;
         String userEmail = null;
-        System.err.println("authHeader "+ authHeader);
+        //System.err.println("authHeader "+ authHeader);
         if(authHeader == null || !authHeader.startsWith("Bearer ")){
-            System.err.println("ici2");
+            //System.err.println("le authHeader vaut "+authHeader+" et !authHeader.startsWith(\"Bearer \") retourne "+!authHeader.startsWith("Bearer "));
             filterChain.doFilter(request, response);
             return;
         }
 
         jwt = authHeader.substring(7);
-        System.err.println("jwt == "+jwt);
         userEmail = jwtService.extractUsername(jwt);
-        System.err.println("userEmail == "+userEmail);
+        //System.err.println("On recupere donc le jwt =="+jwt+" et le userEmail == "+userEmail);
 
 //        if(authHeader != null && authHeader.startsWith("Bearer ")){
 //            jwt = authHeader.substring(7);
-//            System.err.println("jwt == "+jwt);
+//            //System.err.println("jwt == "+jwt);
 //            userEmail = jwtService.extractUsername(jwt);
-//            System.err.println("userEmail == "+userEmail);
+//            //System.err.println("userEmail == "+userEmail);
 //        }
 
         if(userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null){
-            System.out.println("userEmail == "+userEmail+ " SecurityContextHolder.getContext().getAuthentication() "+SecurityContextHolder.getContext().getAuthentication());
+            //System.err.println("userEmail == "+userEmail+ " SecurityContextHolder.getContext().getAuthentication() "+SecurityContextHolder.getContext().getAuthentication());
+            //System.err.println("On va donc rechercher le User dans la BD");
             UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
+            //System.err.println("Le user etant trouver on va verifier si le token recuperer l'appartient vraiment et " +"n'est pas encore expire");
             if(jwtService.isTokenValid(jwt, userDetails)){
-                System.err.println("ICI on est sur que le token est valid");
+                //System.err.println("ICI on est sur que le token est valid");
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails,
                         null,
                         userDetails.getAuthorities());
+                //System.err.println("On a donc fabriquer un UsernamePasswordAuthenticationToken "+authToken);
                 authToken.setDetails(
                         new WebAuthenticationDetailsSource().buildDetails(request)
                 );
+                //System.err.println("On a set les details de ce UsernamePasswordAuthenticationToken fabrique");
                 SecurityContextHolder.getContext().setAuthentication(authToken);
+                //System.err.println("On a place ce UsernamePasswordAuthenticationToken fabrique dans le contexte de securite");
             }
-            System.err.println("suite du filtre "+ jwtService.isTokenValid(jwt, userDetails));
+            //System.err.println("le filtre JwtAuthenticationFilter a donc fini son travail ");
         }
+        //System.err.println("Il laisse donc la requete http continuer sa route ");
         filterChain.doFilter(request, response);
     }
 }
