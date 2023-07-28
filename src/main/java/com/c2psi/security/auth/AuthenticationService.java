@@ -1,5 +1,6 @@
-package com.c2psi.security.config;
+package com.c2psi.security.auth;
 
+import com.c2psi.security.config.JwtService;
 import com.c2psi.security.userbm.Role;
 import com.c2psi.security.userbm.Userbm;
 import com.c2psi.security.userbm.UserbmRepository;

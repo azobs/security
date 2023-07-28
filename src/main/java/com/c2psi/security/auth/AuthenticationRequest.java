@@ -1,4 +1,4 @@
-package com.c2psi.security.config;
+package com.c2psi.security.auth;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class AuthenticationResponse {
-    String token;
+public class AuthenticationRequest {
+    String email;
+    String password;
 }

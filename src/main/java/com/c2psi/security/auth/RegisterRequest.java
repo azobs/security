@@ -1,4 +1,4 @@
-package com.c2psi.security.config;
+package com.c2psi.security.auth;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
