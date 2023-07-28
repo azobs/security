@@ -1,5 +1,6 @@
 package com.c2psi.security.userbm;
 
+import com.c2psi.security.token.Token;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -22,13 +23,22 @@ public class Userbm implements UserDetails {
     @Id
     @GeneratedValue
     Long id;
+    @Column(nullable = false)
     String firstName;
     String lastName;
+    @Column(nullable = false, unique = true)
     String email;
+    @Column(nullable = false)
     String password;
 
     @Enumerated(EnumType.STRING)
     private Role role;
+
+    /**************************
+     * Relation to other entity
+     */
+    @OneToMany(mappedBy = "userbm")
+    private List<Token> tokenList;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

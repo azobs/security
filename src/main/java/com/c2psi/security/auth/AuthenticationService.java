@@ -1,6 +1,9 @@
 package com.c2psi.security.auth;
 
 import com.c2psi.security.config.JwtService;
+import com.c2psi.security.token.Token;
+import com.c2psi.security.token.TokenRepository;
+import com.c2psi.security.token.TokenType;
 import com.c2psi.security.userbm.Role;
 import com.c2psi.security.userbm.Userbm;
 import com.c2psi.security.userbm.UserbmRepository;
@@ -20,6 +23,10 @@ public class AuthenticationService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
+
+    //Declaration du 28-07-2023
+    private final TokenRepository tokenRepository;
+    //fin des declaration du 28-07-2023
     public AuthenticationResponse register(RegisterRequest request) {
         //System.err.println("request "+request);
         var userbm = Userbm.builder()
@@ -29,11 +36,35 @@ public class AuthenticationService {
                 .password(passwordEncoder.encode(request.getPassword()))
                 .role(Role.User)
                 .build();
-        Userbm userbmSaved = repository.save(userbm);
+        var userbmSaved = repository.save(userbm);
         var jwtToken = jwtService.generateToken(userbmSaved);
+        //Adding line 28-07-2023
+        saveUserToken(userbmSaved, jwtToken);
+        //End of adding line of 28-07-2023
         return AuthenticationResponse.builder()
                 .token(jwtToken)
                 .build();
+    }
+
+    private void revokeAllExistingTokenListofUser(Userbm userbm){
+        var validUserTokenList = tokenRepository.findAllValidTokenListByUser(userbm.getId());
+        if(validUserTokenList.isEmpty()) return;
+        validUserTokenList.forEach(token -> {
+            token.setExpired(true);
+            token.setRevoked(true);
+        });
+        tokenRepository.saveAll(validUserTokenList);
+    }
+
+    private void saveUserToken(Userbm userbm, String jwtToken) {
+        var token = Token.builder()
+                .userbm(userbm)
+                .token(jwtToken)
+                .tokenType(TokenType.Bearer)
+                .expired(false)
+                .revoked(false)
+                .build();
+        tokenRepository.save(token);
     }
 
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
@@ -57,6 +88,8 @@ public class AuthenticationService {
         }
         var jwtToken = jwtService.generateToken(optionalUserbm.get());
         //System.err.println("le jwt genere apres l'authentication"+jwtToken);
+        revokeAllExistingTokenListofUser(optionalUserbm.get());
+        saveUserToken(optionalUserbm.get(), jwtToken);
         return AuthenticationResponse.builder()
                 .token(jwtToken)
                 .build();

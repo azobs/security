@@ -1,5 +1,6 @@
 package com.c2psi.security.config;
 
+import com.c2psi.security.token.TokenRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -21,6 +22,7 @@ import java.io.IOException;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtService jwtService;
     private final UserDetailsService userDetailsService;
+    private final TokenRepository tokenRepository;
 
 
     @Override
@@ -55,7 +57,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             //System.err.println("On va donc rechercher le User dans la BD");
             UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
             //System.err.println("Le user etant trouver on va verifier si le token recuperer l'appartient vraiment et " +"n'est pas encore expire");
-            if(jwtService.isTokenValid(jwt, userDetails)){
+            //Ajout du 28-07-2023 pour la gestion des token afin de se rassurer que le token est aussi valid en BD
+            var isTokenValidInBD = tokenRepository.findByToken(jwt)
+                    .map(token -> !token.isExpired() && !token.isRevoked())
+                    .orElse(false);
+            //&& isTokenValidInBD ajouter a la ligne qui suit le meme 28
+            //fin des ajouts du 28-07-2023
+            if(jwtService.isTokenValid(jwt, userDetails) && isTokenValidInBD){
                 //System.err.println("ICI on est sur que le token est valid");
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails,
                         null,
