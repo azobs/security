@@ -42,7 +42,11 @@ public class Userbm implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority(role.name()));
+        //Ce return qui etait la avant les modif du 29-07-2023 concernant les permissions
+        //return List.of(new SimpleGrantedAuthority(role.name()));
+        //Ajout du 29-07-2023
+        return role.getAuthorities();
+        //Fin des ajouts
     }
 
     @Override

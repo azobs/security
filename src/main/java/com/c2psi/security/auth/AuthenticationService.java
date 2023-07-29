@@ -34,7 +34,11 @@ public class AuthenticationService {
                 .lastName(request.getLastName())
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
-                .role(Role.User)
+                //Ajout du 29-07-2023 pour la gestion des roles et permissions
+                //La ligne .role(Role.User) a ete mise en commentaire et remplacer par la suivante
+                .role(request.getRole())
+                //fin des ajouts du 29-07-2023
+                //.role(Role.User)
                 .build();
         var userbmSaved = repository.save(userbm);
         var jwtToken = jwtService.generateToken(userbmSaved);
