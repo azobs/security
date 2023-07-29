@@ -27,7 +27,13 @@ public class SecurityApplication {
 					.password("password")
 					.role(Admin)
 					.build();
-			System.out.println("Admin token: "+ authenticationService.register(adminRequest).getToken());
+			try {
+				System.out.println("Admin token: " + authenticationService.register(adminRequest).getToken());
+			}
+			catch (Exception e){
+				System.err.println("Admin already exist in the system "+
+						authenticationService.getValidToken(adminRequest).getToken());
+			}
 
 			var managerRequest = RegisterRequest.builder()
 					.firstName("manager")
@@ -36,7 +42,13 @@ public class SecurityApplication {
 					.password("password")
 					.role(Manager)
 					.build();
-			System.out.println("Manager token: "+ authenticationService.register(managerRequest).getToken());
+			try {
+				System.out.println("Manager token: " + authenticationService.register(managerRequest).getToken());
+			}
+			catch (Exception e){
+				System.err.println("Manager already exist in the system "+
+						authenticationService.getValidToken(managerRequest).getToken());
+			}
 		};
 	}
 	//Fin des ajouts du 29-07-2023

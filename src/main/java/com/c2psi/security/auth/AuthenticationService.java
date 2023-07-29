@@ -71,6 +71,22 @@ public class AuthenticationService {
         tokenRepository.save(token);
     }
 
+    //Ajout du 29-07-2023
+    public AuthenticationResponse getValidToken(RegisterRequest request) {
+        var existingUser = repository.findByEmail(request.getEmail()).orElse(null);
+        if(existingUser == null){
+            throw new UsernameNotFoundException("Valid Token not found for the user");
+        }
+        var validUserTokenList = tokenRepository.findAllValidTokenListByUser(existingUser.getId());
+        var jwtToken = jwtService.generateToken(existingUser);
+        revokeAllExistingTokenListofUser(existingUser);
+        saveUserToken(existingUser, jwtToken);
+        return AuthenticationResponse.builder()
+                .token(jwtToken)
+                .build();
+    }
+    //Fin des ajout du 29-07-2023
+
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
         //System.err.println("Lancement de la fonction authenticate du service AuthenticationService ");
         //System.err.println("Et dans authenticate on a  email = "+request.getEmail()+ " et password ="+request.getPassword());

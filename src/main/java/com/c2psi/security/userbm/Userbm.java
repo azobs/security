@@ -18,7 +18,9 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "userbm")
+@Table(name = "userbm",
+        uniqueConstraints = {@UniqueConstraint(
+                columnNames = {"email"})})
 public class Userbm implements UserDetails {
     @Id
     @GeneratedValue
@@ -26,7 +28,7 @@ public class Userbm implements UserDetails {
     @Column(nullable = false)
     String firstName;
     String lastName;
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     String email;
     @Column(nullable = false)
     String password;
